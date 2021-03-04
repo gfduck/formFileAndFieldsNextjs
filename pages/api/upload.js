@@ -2,6 +2,7 @@ import formidable from "formidable";
 var path = require("path");
 import { nanoid } from "nanoid";
 import jimp from "jimp";
+import { funcionMysql } from "./../../config/mysql";
 //sino anda usar formidable-serverless
 export const config = {
   api: {
@@ -10,48 +11,48 @@ export const config = {
 };
 
 export default async (req, res) => {
+  const pool = await funcionMysql();
   const form = new formidable.IncomingForm({ multiples: true });
 
-  // console.log("req body es ,", req.body);
-  // formidable({ multiples: true });
-  //   form.uploadDir = "../public_html/imagenes";
   form.uploadDir = "./public";
   form.parse(req);
-  // form.uploadDir = path.join(__dirname, "/public");
 
   form.keepExtensions = true;
 
-  // form.once("error", console.error);
-
-  // form.on("fileBegin", function (field, file) {
-  //   console.log("File incoming");
-  //   fs.rename(file.path, path.join(form.uploadDir, file.name));
-  // });
-  // form.on("error", function (err) {
-  //   console.log("An error has occured: \n" + err);
-  // });
-  // form.on("end", function () {
-  //   console.log("success");
-  // });
-
-  //este ejemplo anda
   let archivo = "";
+  let array_temporal = [];
+  let array_archivos = [];
+  let id_temporal = "";
+  form.once("error", console.error);
+
   form.on("fileBegin", async (filename, file) => {
     let regex = /[^.]*/;
-    let fileName = file.name.replace(regex, nanoid());
+    id_temporal = nanoid();
+    let fileName = file.name.replace(regex, id_temporal);
     // file.path = path.join(__dirname + "/../uploads/", fileName);
     file.path = path.join("./public", fileName);
     console.log("nombre de la nueva foto es, ", fileName);
+    array_temporal.push(id_temporal);
+
     // form.emit("data", { name: "fileBegin", filename, value: file });
     // file.path = path.join("./public", "prueba1");
   });
 
   form.on("file", async (filename, file) => {
     form.emit("data", { name: "file", key: filename, value: file });
-    // console.log("filename es, ", filename);
-    console.log("form emit es, ");
-    archivo = file.path;
-    await main(archivo);
+    console.log("filename es, ", filename);
+    let regex = /[^.]*/;
+
+    console.log("array temporal es, ", array_temporal);
+
+    array_temporal.map(async (item) => {
+      const newFileName = file.name.replace(regex, `${item}_thumb`);
+      console.log("newfileName es, ", newFileName);
+      await main(file.path, newFileName);
+    });
+    // archivo = file.path;
+    // await main(archivo, newFileName);
+    //Guardar en la base de datos el nombre
   });
 
   form.on("field", (fieldName, fieldValue) => {
@@ -63,34 +64,17 @@ export default async (req, res) => {
   form.once("end", async () => {
     console.log("Done!");
   });
-
-  //fin ejemplo anda
-
-  //shortid.generate()
-  // form.on("fileBegin", function (name, value) {
-  //   file.path = path.join("./public", "archivo_prueba");
-  // });
-
-  // form.on("end", function (name, file) {
-  //   console.log("finish parse");
-  // });
-
-  // form.parse(req, (err, fields, files) => {
-  //   console.log("field es, ", fields);
-
-  //   if (!err) {
-  //   }
-  // });
 };
 
-async function main(path) {
+async function main(path, newFileName) {
   // Read the image.
   console.log("se ejecuta una vez");
+  console.log("path es, ", path);
   const image = await jimp.read(path);
 
   // Resize the image to width 150 and auto height.
-  await image.resize(300, jimp.AUTO);
+  await image.resize(150, jimp.AUTO);
 
   // Save and overwrite the image
-  await image.writeAsync(path);
+  await image.writeAsync(`./public/${newFileName}`);
 }
