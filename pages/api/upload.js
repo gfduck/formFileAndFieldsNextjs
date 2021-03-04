@@ -1,5 +1,6 @@
 import formidable from "formidable";
 var path = require("path");
+import { nanoid } from "nanoid";
 //sino anda usar formidable-serverless
 export const config = {
   api: {
@@ -8,9 +9,12 @@ export const config = {
 };
 
 export default async (req, res) => {
-  const form = new formidable.IncomingForm();
+  const form = new formidable.IncomingForm({ multiples: true });
+
+  // console.log("req body es ,", req.body);
+  // formidable({ multiples: true });
   //   form.uploadDir = "../public_html/imagenes";
-  // form.uploadDir = "./public";
+  form.uploadDir = "./public";
   form.parse(req);
   // form.uploadDir = path.join(__dirname, "/public");
 
@@ -29,10 +33,12 @@ export default async (req, res) => {
   //   console.log("success");
   // });
 
-  form.on("fileBegin", (filename, file) => {
+  //este ejemplo anda
+
+  form.on("fileBegin", async (filename, file) => {
     let regex = /[^.]*/;
-    let fileName = file.name.replace(regex, "123");
-    file.path = path.join(__dirname + "/../uploads/", fileName);
+    let fileName = file.name.replace(regex, nanoid());
+    // file.path = path.join(__dirname + "/../uploads/", fileName);
     file.path = path.join("./public", fileName);
     console.log("nombre de la nueva foto es, ", fileName);
     // form.emit("data", { name: "fileBegin", filename, value: file });
@@ -46,13 +52,16 @@ export default async (req, res) => {
   });
 
   form.on("field", (fieldName, fieldValue) => {
+    console.log("se ejecuta field");
     form.emit("data", { name: "field", key: fieldName, value: fieldValue });
-    console.log("filename es, ", filename);
+    console.log("fieldName es, ", fieldValue);
   });
 
   form.once("end", () => {
     console.log("Done!");
   });
+
+  //fin ejemplo anda
 
   //shortid.generate()
   // form.on("fileBegin", function (name, value) {
@@ -64,7 +73,7 @@ export default async (req, res) => {
   // });
 
   // form.parse(req, (err, fields, files) => {
-  //   console.log("form es, ", form);
+  //   console.log("field es, ", fields);
 
   //   if (!err) {
   //   }
