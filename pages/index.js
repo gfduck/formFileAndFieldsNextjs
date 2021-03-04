@@ -3,6 +3,7 @@ import axios, { post } from "axios";
 
 const SimpleReactFileUpload = () => {
   const [file, setFile] = useState(null);
+  const [file2, setFile2] = useState(null);
 
   const [texto, setTexto] = useState("");
 
@@ -10,20 +11,24 @@ const SimpleReactFileUpload = () => {
 
   function onFormSubmit(e) {
     e.preventDefault(); // Stop form submit
-    fileUpload(file, texto, texto2).then((response) => {
+    fileUpload(file, texto, texto2, file2).then((response) => {
       console.log(response.data);
     });
   }
   function onChange(e) {
     setFile(e.target.files[0]);
   }
-  async function fileUpload(file, texto, texto2) {
+  function onChange2(e) {
+    setFile2(e.target.files[0]);
+  }
+  async function fileUpload(file, texto, texto2, file2) {
     const url = "http://localhost:3000/api/upload";
     // const url = "https://next.qchars.com/api/upload";
     const formData = new FormData();
     formData.append("file", file);
     formData.append("texto1", texto);
     formData.append("texto2", texto2);
+    formData.append("file2", file2);
     const config = {
       headers: {
         "Content-type": "multipart/form-data",
@@ -57,6 +62,7 @@ const SimpleReactFileUpload = () => {
           />
         </div>
         <input type="file" onChange={(e) => onChange(e)} />
+        <input type="file" onChange={(e) => onChange2(e)} />
         <button type="submit">Upload</button>
       </form>
       {/* <img src="./upload_bd5c05c6e7b36845e343dfeab59cf53a.jpg" /> */}

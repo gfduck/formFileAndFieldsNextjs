@@ -1,6 +1,7 @@
 import formidable from "formidable";
 var path = require("path");
 import { nanoid } from "nanoid";
+import jimp from "jimp";
 //sino anda usar formidable-serverless
 export const config = {
   api: {
@@ -34,7 +35,7 @@ export default async (req, res) => {
   // });
 
   //este ejemplo anda
-
+  let archivo = "";
   form.on("fileBegin", async (filename, file) => {
     let regex = /[^.]*/;
     let fileName = file.name.replace(regex, nanoid());
@@ -43,12 +44,14 @@ export default async (req, res) => {
     console.log("nombre de la nueva foto es, ", fileName);
     // form.emit("data", { name: "fileBegin", filename, value: file });
     // file.path = path.join("./public", "prueba1");
-    console.log("filname es, ", filename);
   });
 
-  form.on("file", (filename, file) => {
+  form.on("file", async (filename, file) => {
     form.emit("data", { name: "file", key: filename, value: file });
     // console.log("filename es, ", filename);
+    console.log("form emit es, ");
+    archivo = file.path;
+    await main(archivo);
   });
 
   form.on("field", (fieldName, fieldValue) => {
@@ -57,7 +60,7 @@ export default async (req, res) => {
     console.log("fieldName es, ", fieldValue);
   });
 
-  form.once("end", () => {
+  form.once("end", async () => {
     console.log("Done!");
   });
 
@@ -79,3 +82,15 @@ export default async (req, res) => {
   //   }
   // });
 };
+
+async function main(path) {
+  // Read the image.
+  console.log("se ejecuta una vez");
+  const image = await jimp.read(path);
+
+  // Resize the image to width 150 and auto height.
+  await image.resize(300, jimp.AUTO);
+
+  // Save and overwrite the image
+  await image.writeAsync(path);
+}
