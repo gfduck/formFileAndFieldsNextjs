@@ -5,13 +5,13 @@ const SimpleReactFileUpload = () => {
   const [file, setFile] = useState(null);
   const [file2, setFile2] = useState(null);
 
-  const [texto, setTexto] = useState("");
+  const [titulo, setTitulo] = useState("");
 
-  const [texto2, setTexto2] = useState("");
+  const [descripcion, setDescripcion] = useState("");
 
   function onFormSubmit(e) {
     e.preventDefault(); // Stop form submit
-    fileUpload(file, texto, texto2, file2).then((response) => {
+    fileUpload(file, titulo, descripcion).then((response) => {
       console.log(response.data);
     });
   }
@@ -21,14 +21,14 @@ const SimpleReactFileUpload = () => {
   function onChange2(e) {
     setFile2(e.target.files[0]);
   }
-  async function fileUpload(file, texto, texto2, file2) {
-    const url = "http://localhost:3000/api/upload";
-    // const url = "https://next.qchars.com/api/upload";
+  async function fileUpload(file, titulo, descripcion) {
+    // const url = "http://localhost:3000/api/upload";
+    const url = "https://next.qchars.com/api/upload";
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("texto1", texto);
-    formData.append("texto2", texto2);
-    formData.append("file2", file2);
+    formData.append("titulo", titulo);
+    formData.append("descripcion", descripcion);
+    // formData.append("file2", file2);
     const config = {
       headers: {
         "Content-type": "multipart/form-data",
@@ -40,29 +40,32 @@ const SimpleReactFileUpload = () => {
 
   return (
     <>
-      <p>Hola</p>
+      <p>Hola2</p>
       <form onSubmit={(e) => onFormSubmit(e)}>
         <h1>File Upload</h1>
         <div>
-          Text field title:{" "}
+          Titulo:{" "}
           <input
             type="text"
             name="title"
-            onChange={(e) => setTexto(e.target.value)}
-            value={texto}
+            onChange={(e) => setTitulo(e.target.value)}
+            value={titulo}
+            style={{ width: "200px", height: "100px" }}
           />
         </div>
+        <br />
         <div>
-          Text field title:{" "}
-          <input
+          Descripcion:{" "}
+          <textarea
             type="text"
             name="texto2"
-            onChange={(e) => setTexto2(e.target.value)}
-            value={texto2}
-          />
+            onChange={(e) => setDescripcion(e.target.value)}
+            value={descripcion}
+            style={{ width: "200px", height: "100px" }}
+          ></textarea>
         </div>
         <input type="file" onChange={(e) => onChange(e)} />
-        <input type="file" onChange={(e) => onChange2(e)} />
+        {/* <input type="file" onChange={(e) => onChange2(e)} /> */}
         <button type="submit">Upload</button>
       </form>
       {/* <img src="./upload_bd5c05c6e7b36845e343dfeab59cf53a.jpg" /> */}
