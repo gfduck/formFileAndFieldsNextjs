@@ -86,19 +86,19 @@ export default async (req, res) => {
       console.log("arrayProducto es, ", arrayProducto);
       console.log("objeto fotos es, ", objetoFotos);
       await pool.query(
-        `INSERT INTO productos (titulo, descripcion, foto_original, foto_thumb) VALUES ( '${arrayProducto.titulo}', '${arrayProducto.descripcion}', '${objetoFotos.foto_original}', '${objetoFotos.foto_thumb}')`,
+        `INSERT INTO productos (titulo, descripcion, categoria, precio,  foto_original, foto_thumb) VALUES ( '${arrayProducto.titulo}', '${arrayProducto.descripcion}', '${arrayProducto.categoria}', '${arrayProducto.precio}', '${objetoFotos.foto_original}', '${objetoFotos.foto_thumb}')`,
         (error, result) => {
           // if (error) throw error;
           if (!error && result) {
-            console.log("se creo usuario");
+            console.log("se registro producto nuevo");
+            res.status(200).json({ message: "ok" });
             // res.json({ message: "Se agrego usuario" });
           } else {
             console.log("error es, ", error);
-            // res.status(405).json({ message: "Ups, algo salio mal..." });
+            res.status(405).json({ message: "Ups, algo salio mal..." });
           }
         }
       );
-      res.status(200).json({ message: "ok" });
     });
   } else {
     res.status(405).json({ message: "We only support POST" });
